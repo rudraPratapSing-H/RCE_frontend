@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Navbar } from '../components/Navbar';
+import { Navbar } from '../features/navbar/Navbar';
 import { Workspace } from '../features/workspace/Workspace';
 
 export const WorkspacePage: React.FC = () => {

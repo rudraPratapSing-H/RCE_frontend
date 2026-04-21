@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { Problem } from '../../../hooks/useProblem';
+import { sanitizeProblemHtml } from '../../../lib/htmlSanitizer';
 
 type ProblemPanelProps = {
   problem: Problem | null;
@@ -18,16 +19,39 @@ export const ProblemPanel: React.FC<ProblemPanelProps> = ({ problem }) => {
     }
   };
 
+  const resolveInputValue = (testCase: Record<string, unknown>) => {
+    if (testCase.input !== undefined && testCase.input !== null && testCase.input !== '') {
+      return testCase.input;
+    }
+
+    const entries = Object.entries(testCase);
+    const firstNonExpected = entries.find(([key]) => key !== 'expectedOutput');
+    return firstNonExpected ? firstNonExpected[1] : '-';
+  };
+
+  const formatDifficulty = (difficulty?: string) => {
+    if (!difficulty) return 'Unknown';
+    return difficulty.charAt(0).toUpperCase() + difficulty.slice(1).toLowerCase();
+  };
+
   const publicExamples = problem?.publicTestCases || [];
+  const rawDescription = problem?.description || 'No problem selected.';
+  const sanitizedDescription = useMemo(() => sanitizeProblemHtml(rawDescription), [rawDescription]);
 
   return (
     <aside className="w-1/2 overflow-y-auto border-r border-zinc-800 bg-zinc-950 p-6">
       <h1 className="mb-4 text-2xl font-bold text-zinc-100">
         {problem?.title || 'Problem'}
       </h1>
-      <p className="whitespace-pre-wrap text-sm leading-7 text-zinc-300">
-        {problem?.description || 'No problem selected.'}
-      </p>
+
+      <div className="mb-4 inline-flex items-center rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-300">
+        Difficulty: {formatDifficulty(problem?.difficulty)}
+      </div>
+
+      <div
+        className="whitespace-pre-wrap text-sm leading-7 text-zinc-300"
+        dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+      />
 
       <section className="mt-8">
         <h2 className="mb-3 text-base font-semibold text-zinc-100">Public Examples</h2>
@@ -45,7 +69,7 @@ export const ProblemPanel: React.FC<ProblemPanelProps> = ({ problem }) => {
                 <div className="mb-3">
                   <p className="mb-1 text-xs text-zinc-500">Input</p>
                   <pre className="whitespace-pre-wrap rounded-md bg-zinc-950 p-3 font-mono text-xs text-zinc-200">
-                    {renderValue(testCase.input)}
+                    {renderValue(resolveInputValue(testCase))}
                   </pre>
                 </div>
 

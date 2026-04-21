@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ProblemPanel } from './components/ProblemPanel';
 import { EditorPanel } from './components/EditorPanel';
@@ -7,15 +7,25 @@ import { WorkspaceToolbar } from './components/WorkspaceToolbar';
 import { useProblem } from '../../hooks/useProblem';
 import { usePublicTestCases } from '../../hooks/usePublicTestCases';
 import { usePrivateTestCases } from '../../hooks/usePrivateTestCases';
+import { useHandlePrivateTestCases } from './hooks/useHandlePrivateTestCases';
+import { useHandlePublicTestCases } from './hooks/useHandlePublicTestCases';
+import { useLatestSubmissionCode } from './hooks/useLatestSubmissionCode';
+import { useProblemCodeState } from './hooks/useProblemCodeState';
+import { useWorkspaceExecutionState } from './hooks/useWorkspaceExecutionState';
+import type { WorkspaceAction } from './types';
 
 export const Workspace: React.FC = () => {
   const { problemId = '' } = useParams<{ problemId: string }>();
   const { problem, isLoading } = useProblem(problemId);
 
   const [language, setLanguage] = useState('javascript');
-  const [code, setCode] = useState('');
-  const [driverCode, setDriverCode] = useState('');
-  const [lastAction, setLastAction] = useState('');
+  const [lastAction, setLastAction] = useState<WorkspaceAction>('none');
+  const { latestSubmission } = useLatestSubmissionCode(problemId, language);
+  const { code, setCode, driverCode, setDriverCode } = useProblemCodeState(
+    problem,
+    language,
+    latestSubmission?.code ?? null
+  );
 
   // Public test cases hook
   const {
@@ -33,57 +43,35 @@ export const Workspace: React.FC = () => {
     submitCode
   } = usePrivateTestCases();
 
-  useEffect(() => {
-    if (!problem) return;
+  const handleRunPublicTests = useHandlePublicTestCases({
+    problemId,
+    language,
+    code,
+    setLastAction,
+    runPublicTests
+  });
 
-    const nextStarterCode =
-      problem.starterCodes[language] ||
-      problem.starterCodes.javascript ||
-      Object.values(problem.starterCodes)[0] ||
-      '';
+  const handleSubmitCode = useHandlePrivateTestCases({
+    problemId,
+    language,
+    code,
+    setLastAction,
+    submitCode
+  });
 
-    const nextDriverCode =
-      problem.driverCodes[language] ||
-      problem.driverCodes.javascript ||
-      Object.values(problem.driverCodes)[0] ||
-      '';
+  const { currentResult, isRunning, error } = useWorkspaceExecutionState({
+    publicResult,
+    privateResult,
+    isPublicRunning,
+    isSubmitting,
+    publicError,
+    privateError,
+    lastAction
+  });
 
-    setCode(nextStarterCode);
-    setDriverCode(nextDriverCode);
-  }, [language, problem]);
-
-  const handleRunPublicTests = async () => {
-    if (!problemId || !language || !code) {
-      return;
-    }
-    setLastAction('public');
-    await runPublicTests(problemId, language, code);
-  };
-
-  const handleSubmitCode = async () => {
-    if (!problemId || !language || !code) {
-      return;
-    }
-    setLastAction('private');
-    await submitCode(problemId, language, code);
-  };
-
-  // Show the latest action's result to avoid stale private responses masking public runs.
-  let currentResult = privateResult || publicResult;
-  if (lastAction === 'private') {
-    currentResult = privateResult;
-  } else if (lastAction === 'public') {
-    currentResult = publicResult;
-  }
-
-  const isRunning = isPublicRunning || isSubmitting;
-
-  let error = privateError || publicError;
-  if (lastAction === 'private') {
-    error = privateError;
-  } else if (lastAction === 'public') {
-    error = publicError;
-  }
+  // Driver code is managed with starter code state for future use in execution/editor wiring.
+  void driverCode;
+  void setDriverCode;
 
   return (
     <div className="flex h-[calc(100vh-64px)] flex-col overflow-hidden bg-zinc-950 text-zinc-100">

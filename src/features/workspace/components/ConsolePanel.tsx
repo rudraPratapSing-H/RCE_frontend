@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { ExecutionResult } from '../../../types/testExecution';
+import { copyTextToClipboard } from '../../../lib/clipboard';
 
 type ConsolePanelProps = {
   result: ExecutionResult | null;
@@ -30,7 +31,37 @@ const cleanDockerOutput = (output: string): string => {
 
 export const ConsolePanel: React.FC<ConsolePanelProps> = ({ result, isRunning, error }) => {
   const [expandedCase, setExpandedCase] = React.useState<string | null>(null);
+  const [copiedKey, setCopiedKey] = React.useState<string | null>(null);
   const safeCases = result?.cases || [];
+
+  const formatValue = (value: unknown): string => {
+    if (value === null || value === undefined) return '(empty)';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return String(value);
+    }
+  };
+
+  const handleCopy = async (event: React.MouseEvent, key: string, value: string) => {
+    event.stopPropagation();
+
+    const copied = await copyTextToClipboard(value);
+
+    if (copied) {
+      setCopiedKey(key);
+      window.setTimeout(() => {
+        setCopiedKey((current) => (current === key ? null : current));
+      }, 1500);
+    } else {
+      setCopiedKey(null);
+    }
+  };
+
+  const copyButtonLabel = (key: string) => (copiedKey === key ? 'Copied' : 'Copy');
 
   if (isRunning) {
     return (
@@ -131,35 +162,69 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({ result, isRunning, e
             {expandedCase === testCase.caseId && (
               <div className="border-t border-zinc-800 bg-black p-3 space-y-3 text-xs">
                 <div>
-                  <p className="font-semibold text-zinc-400 mb-1">Input:</p>
+                  <div className="mb-1 flex items-center justify-between">
+                    <p className="font-semibold text-zinc-400">Input:</p>
+                    <button
+                      type="button"
+                      onClick={(event) => handleCopy(event, `${testCase.caseId}-input`, formatValue(testCase.input))}
+                      className="rounded border border-zinc-700 px-2 py-0.5 text-[11px] text-zinc-300 hover:bg-zinc-800"
+                    >
+                      {copyButtonLabel(`${testCase.caseId}-input`)}
+                    </button>
+                  </div>
                   <pre className="bg-zinc-900 p-2 rounded overflow-x-auto text-zinc-300 whitespace-pre-wrap">
-                    {typeof testCase.input === 'object'
-                      ? JSON.stringify(testCase.input, null, 2)
-                      : testCase.input}
+                    {formatValue(testCase.input)}
                   </pre>
                 </div>
 
                 <div>
-                  <p className="font-semibold text-zinc-400 mb-1">Expected Output:</p>
+                  <div className="mb-1 flex items-center justify-between">
+                    <p className="font-semibold text-zinc-400">Expected Output:</p>
+                    <button
+                      type="button"
+                      onClick={(event) => handleCopy(event, `${testCase.caseId}-expected`, formatValue(testCase.expected))}
+                      className="rounded border border-zinc-700 px-2 py-0.5 text-[11px] text-zinc-300 hover:bg-zinc-800"
+                    >
+                      {copyButtonLabel(`${testCase.caseId}-expected`)}
+                    </button>
+                  </div>
                   <pre className="bg-zinc-900 p-2 rounded overflow-x-auto text-green-400 whitespace-pre-wrap">
-                    {testCase.expected}
+                    {formatValue(testCase.expected)}
                   </pre>
                 </div>
 
                 <div>
-                  <p className="font-semibold text-zinc-400 mb-1">Actual Output:</p>
+                  <div className="mb-1 flex items-center justify-between">
+                    <p className="font-semibold text-zinc-400">Actual Output:</p>
+                    <button
+                      type="button"
+                      onClick={(event) => handleCopy(event, `${testCase.caseId}-actual`, formatValue(testCase.actual || '(empty)'))}
+                      className="rounded border border-zinc-700 px-2 py-0.5 text-[11px] text-zinc-300 hover:bg-zinc-800"
+                    >
+                      {copyButtonLabel(`${testCase.caseId}-actual`)}
+                    </button>
+                  </div>
                   <pre
                     className={`bg-zinc-900 p-2 rounded overflow-x-auto whitespace-pre-wrap font-mono ${
                       testCase.passed ? 'text-green-400' : 'text-red-400'
                     }`}
                   >
-                    {testCase.actual || '(empty)'}
+                    {formatValue(testCase.actual || '(empty)')}
                   </pre>
                 </div>
 
                 {testCase.errorMessage && (
                   <div>
-                    <p className="font-semibold text-red-400 mb-1">Runtime Output:</p>
+                    <div className="mb-1 flex items-center justify-between">
+                      <p className="font-semibold text-red-400">Runtime Output:</p>
+                      <button
+                        type="button"
+                        onClick={(event) => handleCopy(event, `${testCase.caseId}-runtime`, cleanDockerOutput(testCase.errorMessage))}
+                        className="rounded border border-zinc-700 px-2 py-0.5 text-[11px] text-zinc-300 hover:bg-zinc-800"
+                      >
+                        {copyButtonLabel(`${testCase.caseId}-runtime`)}
+                      </button>
+                    </div>
                     <pre className="bg-red-900/20 p-2 rounded text-red-300 text-xs whitespace-pre-wrap font-mono overflow-x-auto max-h-64">
                       {cleanDockerOutput(testCase.errorMessage)}
                     </pre>

@@ -1,9 +1,9 @@
-export { Navbar } from '../features/navbar/Navbar';import React from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell, Settings, Terminal } from 'lucide-react';
-import { Button } from './ui/Button';
-import { IconButton } from './ui/IconButton';
-import { SearchBar } from './ui/SearchBar';
+import { Button } from '../../components/ui/Button';
+import { IconButton } from '../../components/ui/IconButton';
+import { SearchComposer } from './components/SearchComposer';
 
 export const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ export const Navbar: React.FC = () => {
         </Link>
 
         <div className="hidden flex-1 md:flex md:justify-center">
-          <SearchBar placeholder="Search executions, files, or problems" />
+          <SearchComposer />
         </div>
 
         <div className="ml-auto flex items-center gap-2">
@@ -29,7 +29,7 @@ export const Navbar: React.FC = () => {
           <div className="mx-2 hidden h-7 w-px bg-zinc-800 sm:block" />
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => navigate('/')} className="hidden sm:inline-flex w-auto px-4">
+            <Button variant="ghost" onClick={() => navigate('/')} className="hidden w-auto px-4 sm:inline-flex">
               Log in
             </Button>
             <Button variant="primary" onClick={() => navigate('/', { state: { tab: 'register' } })} className="w-auto px-4">
