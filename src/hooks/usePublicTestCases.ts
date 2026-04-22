@@ -54,8 +54,12 @@ export const usePublicTestCases = (): UsePublicTestCasesReturn => {
         await sleep(1000);
       }
     } catch (err: any) {
-      const errorMsg = err.response?.data?.message || err.message || 'Execution failed';
-      setError(errorMsg);
+      if (err.response?.status === 401) {
+        setError('Unauthorized: Please log in to run or submit code.');
+      } else {
+        const errorMsg = err.response?.data?.message || err.message || 'Execution failed';
+        setError(errorMsg);
+      }
       setResult(null);
     } finally {
       setIsRunning(false);

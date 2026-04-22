@@ -1,12 +1,19 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, Settings, Terminal } from 'lucide-react';
+import { Bell, Settings, Terminal, LogOut } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { IconButton } from '../../components/ui/IconButton';
 import { SearchComposer } from './components/SearchComposer';
+import { useAuth } from '../../hooks/useAuth';
 
 export const Navbar: React.FC = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-800 bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-gray-900/80">
@@ -28,14 +35,23 @@ export const Navbar: React.FC = () => {
 
           <div className="mx-2 hidden h-7 w-px bg-zinc-800 sm:block" />
 
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => navigate('/')} className="hidden w-auto px-4 sm:inline-flex">
-              Log in
-            </Button>
-            <Button variant="primary" onClick={() => navigate('/', { state: { tab: 'register' } })} className="w-auto px-4">
-              Sign Up
-            </Button>
-          </div>
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" onClick={handleLogout} className="flex w-auto items-center gap-2 px-4 shadow-[0_0_20px_rgba(239,68,68,0.05)] hover:text-red-400">
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" onClick={() => navigate('/')} className="hidden w-auto px-4 sm:inline-flex">
+                Log in
+              </Button>
+              <Button variant="primary" onClick={() => navigate('/', { state: { tab: 'register' } })} className="w-auto px-4">
+                Sign Up
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </header>

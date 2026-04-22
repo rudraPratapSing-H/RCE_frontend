@@ -13,6 +13,7 @@ import { useLatestSubmissionCode } from './hooks/useLatestSubmissionCode';
 import { useProblemCodeState } from './hooks/useProblemCodeState';
 import { useWorkspaceExecutionState } from './hooks/useWorkspaceExecutionState';
 import type { WorkspaceAction } from './types';
+import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels';
 
 export const Workspace: React.FC = () => {
   const { problemId = '' } = useParams<{ problemId: string }>();
@@ -24,7 +25,8 @@ export const Workspace: React.FC = () => {
   const { code, setCode, driverCode, setDriverCode } = useProblemCodeState(
     problem,
     language,
-    latestSubmission?.code ?? null
+    latestSubmission?.code ?? null,
+    setLanguage
   );
 
   // Public test cases hook
@@ -83,14 +85,33 @@ export const Workspace: React.FC = () => {
         isRunning={isRunning}
       />
 
-      <div className="flex flex-1 overflow-hidden">
-        <ProblemPanel problem={isLoading ? null : problem} />
+      <PanelGroup direction="horizontal" className="flex-1 overflow-hidden" autoSaveId="workspace-horizontal">
+        {/* 1. ProblemPanel: 45% width */}
+        <Panel defaultSize={30} minSize={20} className="flex">
+          <ProblemPanel problem={isLoading ? null : problem} />
+        </Panel>
 
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <EditorPanel language={language} code={code} setCode={setCode} />
-          <ConsolePanel result={currentResult} isRunning={isRunning} error={error} />
-        </div>
-      </div>
+        {/* Vertical resizing line (resizes horizontally) */}
+        <PanelResizeHandle className="w-1.5 bg-zinc-950 hover:bg-blue-500/50 active:bg-blue-500 transition-colors cursor-[col-resize]" />
+
+        {/* Right side container: remaining 55% width */}
+        <Panel defaultSize={70} minSize={30} className="flex flex-col border-l border-zinc-800">
+          <PanelGroup direction="vertical" autoSaveId="workspace-vertical">
+            {/* 2. EditorPanel: 60% height on top */}
+            <Panel defaultSize={60} minSize={20} className="flex flex-col">
+              <EditorPanel language={language} code={code} setCode={setCode} />
+            </Panel>
+
+            {/* Horizontal resizing line (resizes vertically) */}
+            <PanelResizeHandle className="h-1.5 bg-zinc-950 hover:bg-blue-500/50 active:bg-blue-500 transition-colors cursor-[row-resize]" />
+
+            {/* 3. ConsolePanel: remaining 40% height on bottom */}
+            <Panel defaultSize={40} minSize={10} className="flex flex-col border-t border-zinc-800">
+              <ConsolePanel result={currentResult} isRunning={isRunning} error={error} />
+            </Panel>
+          </PanelGroup>
+        </Panel>
+      </PanelGroup>
     </div>
   );
 };

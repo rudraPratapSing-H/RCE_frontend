@@ -65,7 +65,7 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({ result, isRunning, e
 
   if (isRunning) {
     return (
-      <div className="h-1/3 min-h-0 border-t border-zinc-800 bg-black p-4">
+      <div className="h-full w-full min-h-0 border-zinc-800 bg-black p-4">
         <p className="animate-pulse text-sm text-zinc-300">Executing...</p>
       </div>
     );
@@ -74,7 +74,7 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({ result, isRunning, e
   if (error) {
     const cleanError = cleanDockerOutput(error);
     return (
-      <div className="h-1/3 min-h-0 border-t border-zinc-800 bg-black p-4">
+      <div className="h-full w-full min-h-0 border-zinc-800 bg-black p-4">
         <div className="flex items-start gap-3 rounded bg-red-900/30 p-3 text-red-400">
           <AlertCircle className="mt-0.5 flex-shrink-0" size={18} />
           <div>
@@ -90,14 +90,14 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({ result, isRunning, e
 
   if (!result) {
     return (
-      <div className="h-1/3 min-h-0 border-t border-zinc-800 bg-black p-4">
+      <div className="h-full w-full min-h-0 border-zinc-800 bg-black p-4">
         <p className="text-sm text-zinc-500">No output yet. Click "Run" or "Submit" to execute code.</p>
       </div>
     );
   }
 
   return (
-    <div className="h-1/3 min-h-0 overflow-y-auto border-t border-zinc-800 bg-black p-4">
+    <div className="h-full w-full min-h-0 overflow-y-auto border-zinc-800 bg-black p-4">
       {/* Summary Bar */}
       <div className="mb-4 rounded-lg bg-zinc-900 p-3">
         <div className="flex items-center justify-between">

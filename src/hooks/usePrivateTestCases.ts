@@ -45,12 +45,14 @@ export const usePrivateTestCases = (): UsePrivateTestCasesReturn => {
       }
 
       const startTime = Date.now();
+      let finalResult = null;
       while (activePollTokenRef.current === pollToken) {
         const statusResponse = await apiClient.get(`/api/status/${submissionId}`);
         const executionResult = mapStatusToExecutionResult(statusResponse.data, submissionId, 'private');
         setResult(executionResult);
 
         if (isExecutionTerminal(executionResult)) {
+          finalResult = executionResult;
           break;
         }
 
@@ -61,9 +63,17 @@ export const usePrivateTestCases = (): UsePrivateTestCasesReturn => {
         await sleep(1000);
       }
 
+      if (finalResult && finalResult.status === 'Accepted') {
+        localStorage.removeItem(`draft_${problemId}`);
+      }
+
     } catch (err: any) {
-      const errorMsg = err.response?.data?.message || err.message || 'Submission failed';
-      setError(errorMsg);
+      if (err.response?.status === 401) {
+        setError('Unauthorized: Please log in to run or submit code.');
+      } else {
+        const errorMsg = err.response?.data?.message || err.message || 'Submission failed';
+        setError(errorMsg);
+      }
       setResult(null);
     } finally {
       setIsSubmitting(false);

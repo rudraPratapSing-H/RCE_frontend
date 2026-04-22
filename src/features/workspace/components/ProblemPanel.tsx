@@ -39,17 +39,17 @@ export const ProblemPanel: React.FC<ProblemPanelProps> = ({ problem }) => {
   const sanitizedDescription = useMemo(() => sanitizeProblemHtml(rawDescription), [rawDescription]);
 
   return (
-    <aside className="w-1/2 overflow-y-auto border-r border-zinc-800 bg-zinc-950 p-6">
-      <h1 className="mb-4 text-2xl font-bold text-zinc-100">
+    <aside className="flex h-full w-full flex-col overflow-y-auto bg-zinc-950 p-4 md:p-6">
+      <h1 className="mb-4 text-xl md:text-2xl font-bold text-zinc-100 break-words">
         {problem?.title || 'Problem'}
       </h1>
 
-      <div className="mb-4 inline-flex items-center rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-300">
+      <div className="mb-4 inline-flex items-center self-start rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-300">
         Difficulty: {formatDifficulty(problem?.difficulty)}
       </div>
 
       <div
-        className="whitespace-pre-wrap text-sm leading-7 text-zinc-300"
+        className="text-sm leading-7 text-zinc-300 prose prose-invert max-w-none break-words"
         dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
       />
 
@@ -61,21 +61,21 @@ export const ProblemPanel: React.FC<ProblemPanelProps> = ({ problem }) => {
         ) : (
           <div className="space-y-4">
             {publicExamples.map((testCase, index) => (
-              <div key={index} className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-4">
+              <div key={index} className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 md:p-4 overflow-hidden">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">
                   Example {index + 1}
                 </p>
 
                 <div className="mb-3">
                   <p className="mb-1 text-xs text-zinc-500">Input</p>
-                  <pre className="whitespace-pre-wrap rounded-md bg-zinc-950 p-3 font-mono text-xs text-zinc-200">
+                  <pre className="overflow-x-auto rounded-md bg-zinc-950 p-3 font-mono text-xs text-zinc-200 whitespace-pre-wrap break-all md:break-words">
                     {renderValue(resolveInputValue(testCase))}
                   </pre>
                 </div>
 
                 <div>
                   <p className="mb-1 text-xs text-zinc-500">Expected Output</p>
-                  <pre className="whitespace-pre-wrap rounded-md bg-zinc-950 p-3 font-mono text-xs text-green-400">
+                  <pre className="overflow-x-auto rounded-md bg-zinc-950 p-3 font-mono text-xs text-green-400 whitespace-pre-wrap break-all md:break-words">
                     {renderValue(testCase.expectedOutput)}
                   </pre>
                 </div>

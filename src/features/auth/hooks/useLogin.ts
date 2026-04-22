@@ -19,7 +19,26 @@ export const useLogin = () => {
       setAccessToken(response.data.accessToken);
       setUser(response.data.user);
 
-      navigate('/workspace');
+      // Check for drafts to redirect
+      let draftRedirect = '/workspace';
+      try {
+        const drafts = Object.keys(localStorage)
+          .filter(key => key.startsWith('draft_'))
+          .map(key => {
+            const item = localStorage.getItem(key);
+            return { key, ...(item ? JSON.parse(item) : { timestamp: 0 }) };
+          })
+          .sort((a, b) => b.timestamp - a.timestamp);
+
+        if (drafts.length > 0) {
+          const latestProblemId = drafts[0].key.replace('draft_', '');
+          draftRedirect = `/workspace/${latestProblemId}`;
+        }
+      } catch (e) {
+        console.error('Error reading drafts', e);
+      }
+
+      navigate(draftRedirect);
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Login failed. Please try again.');
     } finally {

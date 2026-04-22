@@ -9,7 +9,7 @@ type EditorPanelProps = {
 
 export const EditorPanel: React.FC<EditorPanelProps> = ({ language, code, setCode }) => {
   return (
-    <div className="h-2/3 min-h-0">
+    <div className="h-full w-full min-h-0">
       <Editor
         height="100%"
         language={language}
