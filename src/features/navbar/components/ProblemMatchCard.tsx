@@ -9,7 +9,9 @@ type ProblemMatchCardProps = {
 };
 
 const formatDifficulty = (difficulty: string) => {
-  const normalized = difficulty.trim().toLowerCase();
+  // lets handle undefined for undefined difficulties
+  if(difficulty === undefined) return 'Unknown'; 
+  const normalized = difficulty.toLowerCase().trim();
   if (!normalized) return 'Unknown';
   return normalized.charAt(0).toUpperCase() + normalized.slice(1);
 };
@@ -21,8 +23,12 @@ const difficultyStyles: Record<string, string> = {
 };
 
 export const ProblemMatchCard: React.FC<ProblemMatchCardProps> = ({ problem, matchType, onSelect }) => {
+
   const navigate = useNavigate();
-  const difficultyKey = problem.difficulty.trim().toLowerCase();
+
+  // Defensive: handle undefined/null/empty difficulty
+  const safeDifficulty = typeof problem.difficulty === 'string' ? problem.difficulty : '';
+  const difficultyKey = safeDifficulty.trim().toLowerCase();
   const difficultyClass = difficultyStyles[difficultyKey] || 'border-zinc-700 bg-zinc-800/80 text-zinc-200';
 
   const handleClick = () => {

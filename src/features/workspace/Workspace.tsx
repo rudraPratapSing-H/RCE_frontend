@@ -85,7 +85,7 @@ export const Workspace: React.FC = () => {
         isRunning={isRunning}
       />
 
-      <PanelGroup direction="horizontal" className="flex-1 overflow-hidden" autoSaveId="workspace-horizontal">
+      <PanelGroup direction="horizontal" className="flex-1 overflow-hidden" autosaveid="workspace-horizontal">
         {/* 1. ProblemPanel: 45% width */}
         <Panel defaultSize={30} minSize={20} className="flex">
           <ProblemPanel problem={isLoading ? null : problem} />
@@ -96,7 +96,7 @@ export const Workspace: React.FC = () => {
 
         {/* Right side container: remaining 55% width */}
         <Panel defaultSize={70} minSize={30} className="flex flex-col border-l border-zinc-800">
-          <PanelGroup direction="vertical" autoSaveId="workspace-vertical">
+          <PanelGroup direction="vertical" autosaveid="workspace-vertical">
             {/* 2. EditorPanel: 60% height on top */}
             <Panel defaultSize={60} minSize={20} className="flex flex-col">
               <EditorPanel language={language} code={code} setCode={setCode} />
