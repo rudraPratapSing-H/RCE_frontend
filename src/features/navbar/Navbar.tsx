@@ -1,14 +1,16 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, Settings, Terminal, LogOut } from 'lucide-react';
+import { Bell, LayoutDashboard, Settings, Terminal, LogOut } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { IconButton } from '../../components/ui/IconButton';
 import { SearchComposer } from './components/SearchComposer';
 import { useAuth } from '../../hooks/useAuth';
+import { useAuthContext } from '../../features/auth/AuthProvider';
 
 export const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, logout } = useAuth();
+  const { user } = useAuthContext();
 
   const handleLogout = async () => {
     await logout();
@@ -36,7 +38,16 @@ export const Navbar: React.FC = () => {
           <div className="mx-2 hidden h-7 w-px bg-zinc-800 sm:block" />
 
           {isAuthenticated ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/dashboard')}
+                className="hidden w-auto items-center gap-2 px-4 text-sm text-zinc-300 sm:inline-flex"
+                aria-label="Open dashboard"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                <span>{user?.username ?? 'User'}</span>
+              </Button>
               <Button variant="ghost" onClick={handleLogout} className="flex w-auto items-center gap-2 px-4 shadow-[0_0_20px_rgba(239,68,68,0.05)] hover:text-red-400">
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Logout</span>

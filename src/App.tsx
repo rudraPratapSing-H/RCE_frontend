@@ -2,30 +2,43 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthPage } from './pages/AuthPage';
 import { AuthProvider } from './features/auth/AuthProvider';
+import ErrorBoundary from './components/ErrorBoundary';
 import { VerifyEmailPage } from './pages/VerifyEmailPage';
+import AuthSuccessPage from './pages/AuthSuccessPage';
 import { WorkspacePage } from './pages/WorkspacePage';
+import { DashboardPage } from './pages/DashboardPage';
 import { ProblemProvider } from './context/ProblemContext';
 
-export default function App() {
-  return (
-    <BrowserRouter>
-      {/* 1. AuthProvider goes highest so everything below knows who the user is */}
-      <AuthProvider>
-        {/* 2. ProblemProvider sits inside, so it can eventually fetch user-specific problem data */}
-        <ProblemProvider>
-          <Routes>
-            <Route path="/" element={<AuthPage />} />
-            <Route path="/verify-email" element={<VerifyEmailPage />} />
-            
-            {/* Workspace Routes */}
-            <Route path="/workspace" element={<WorkspacePage />} />
-            <Route path="/workspace/:problemId" element={<WorkspacePage />} />
-            
-            {/* 3. Pro-Tip: Add a Catch-all 404 Route */}
-            <Route path="*" element={<div>404 - Page Not Found</div>} />
-          </Routes>
-        </ProblemProvider>
-      </AuthProvider>
-    </BrowserRouter>
+const App = () =>
+  React.createElement(
+    BrowserRouter,
+    null,
+    React.createElement(
+      ErrorBoundary,
+      null,
+      React.createElement(
+        AuthProvider,
+        null,
+        React.createElement(
+          ProblemProvider,
+          null,
+          React.createElement(
+            Routes,
+            null,
+            React.createElement(Route, { path: '/', element: React.createElement(AuthPage) }),
+            React.createElement(Route, { path: '/verify-email', element: React.createElement(VerifyEmailPage) }),
+            React.createElement(Route, { path: '/auth-success', element: React.createElement(AuthSuccessPage) }),
+            React.createElement(Route, { path: '/dashboard', element: React.createElement(DashboardPage) }),
+            React.createElement(Route, { path: '/workspace', element: React.createElement(WorkspacePage) }),
+            React.createElement(Route, { path: '/workspace/:problemId', element: React.createElement(WorkspacePage) }),
+            React.createElement(Route, {
+              path: '*',
+              element: React.createElement('div', null, '404 - Page Not Found')
+            })
+          )
+        )
+      )
+    )
   );
-}
+
+export default App;

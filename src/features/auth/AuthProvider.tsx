@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../lib/apiClient';
 import {
@@ -28,14 +28,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const navigate = useNavigate();
 
-  const setAccessToken = (token: string | null) => {
-    setAccessTokenState(token);
-    setStoredAccessToken(token);
-  };
+  const setAccessToken = useCallback((token: string | null) => {
+    setAccessTokenState((prev) => {
+      if (prev === token) return prev;
+      // update the shared stored token which notifies other listeners
+      setStoredAccessToken(token);
+      return token;
+    });
+  }, []);
 
   useEffect(() => {
     const unsubscribe = subscribeAccessToken((token) => {
-      setAccessTokenState(token);
+      setAccessTokenState((prev) => (prev === token ? prev : token));
     });
 
     return unsubscribe;
@@ -76,6 +80,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [navigate]); // Empty dependency array basically (except navigate), runs ONLY once on mount!
 
+  const contextValue = useMemo(() => ({ user, accessToken, setAccessToken, setUser }), [user, accessToken, setAccessToken, setUser]);
+
   if (isInitializing) {
     return (
       <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center text-zinc-100">
@@ -89,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   return (
-    <AuthContext.Provider value={{ user, accessToken, setAccessToken, setUser }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

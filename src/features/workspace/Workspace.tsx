@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ProblemPanel } from './components/ProblemPanel';
+import Submission from './components/Submission';
 import { EditorPanel } from './components/EditorPanel';
 import { ConsolePanel } from './components/ConsolePanel';
-import { WorkspaceToolbar } from './components/WorkspaceToolbar';
+import { WorkspaceToolbar } from './hooks/WorkspaceToolbar';
 import { useProblem } from '../../hooks/useProblem';
 import { usePublicTestCases } from '../../hooks/usePublicTestCases';
 import { usePrivateTestCases } from '../../hooks/usePrivateTestCases';
@@ -12,10 +13,12 @@ import { useHandlePublicTestCases } from './hooks/useHandlePublicTestCases';
 import { useLatestSubmissionCode } from './hooks/useLatestSubmissionCode';
 import { useProblemCodeState } from './hooks/useProblemCodeState';
 import { useWorkspaceExecutionState } from './hooks/useWorkspaceExecutionState';
+
 import type { WorkspaceAction } from './types';
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels';
 
 export const Workspace: React.FC = () => {
+
   const { problemId = '' } = useParams<{ problemId: string }>();
   const { problem, isLoading } = useProblem(problemId);
 
@@ -28,6 +31,9 @@ export const Workspace: React.FC = () => {
     latestSubmission?.code ?? null,
     setLanguage
   );
+
+  // Toggle state: 'problem' or 'submission'
+  const [panel, setPanel] = useState<'problem' | 'submission'>('problem');
 
   // Public test cases hook
   const {
@@ -85,10 +91,30 @@ export const Workspace: React.FC = () => {
         isRunning={isRunning}
       />
 
+      {/* Toggle buttons for Problem/Submission panel */}
+      <div className="flex gap-2 px-4 py-2 bg-zinc-900 border-b border-zinc-800">
+        <button
+          className={`px-3 py-1 rounded ${panel === 'problem' ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-300'}`}
+          onClick={() => setPanel('problem')}
+        >
+          Problem
+        </button>
+        <button
+          className={`px-3 py-1 rounded ${panel === 'submission' ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-300'}`}
+          onClick={() => setPanel('submission')}
+        >
+          Submission
+        </button>
+      </div>
+
       <PanelGroup direction="horizontal" className="flex-1 overflow-hidden" autosaveid="workspace-horizontal">
-        {/* 1. ProblemPanel: 45% width */}
+        {/* 1. ProblemPanel or Submission: 45% width */}
         <Panel defaultSize={30} minSize={20} className="flex">
-          <ProblemPanel problem={isLoading ? null : problem} />
+          {panel === 'problem' ? (
+            <ProblemPanel problem={isLoading ? null : problem} />
+          ) : (
+            <Submission problemId={problemId} language={language} setCode={setCode} setLanguage={setLanguage} />
+          )}
         </Panel>
 
         {/* Vertical resizing line (resizes horizontally) */}

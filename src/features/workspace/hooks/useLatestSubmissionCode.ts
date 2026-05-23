@@ -12,7 +12,7 @@ type LatestSubmission = {
 
 type LatestSubmissionResponse = {
   success: boolean;
-  data: LatestSubmission | null;
+  submission: LatestSubmission | null;
 };
 
 export const useLatestSubmissionCode = (problemId: string, language: string) => {
@@ -35,16 +35,14 @@ export const useLatestSubmissionCode = (problemId: string, language: string) => 
       setError(null);
 
       try {
-        const response = await apiClient.get<LatestSubmissionResponse>('/api/submissions/latest', {
-          params: {
-            problemId,
-            language
-          }
-        });
+        const response = await apiClient.get(
+          `/api/dashboard/submissions/latest/${problemId}`,
+          { params: { language } }
+        );
 
         if (cancelled) return;
 
-        setLatestSubmission(response.data.data ?? null);
+        setLatestSubmission(response.data.submission ?? null);
       } catch (fetchError: any) {
         if (cancelled) return;
 
