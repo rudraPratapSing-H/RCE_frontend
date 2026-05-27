@@ -3,9 +3,10 @@ import { getAccessToken, setAccessToken } from './authToken';
 import { getBackendBaseUrl } from './backendUrl';
 
 const API_BASE_URL = getBackendBaseUrl();
+const hasAbsoluteBackendUrl = /^https?:\/\//i.test(API_BASE_URL);
 
 const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: hasAbsoluteBackendUrl ? API_BASE_URL : undefined,
   withCredentials: true
 });
 
