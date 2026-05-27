@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
+import { getBackendUrl } from '../../lib/backendUrl';
 
 interface LoginFormProps {
   onSubmit: (email: string, pass: string) => void;
@@ -44,7 +45,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading }) => 
         <button
           type="button"
           aria-label="Sign in with Google"
-          onClick={() => { window.location.href = '/api/auth/google'; }}
+          onClick={() => { window.location.href = getBackendUrl('/api/auth/google'); }}
           className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-105 transition-transform"
         >
           <div className="sr-only">Sign in with Google</div>
@@ -57,7 +58,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading }) => 
         </button>
         <button
           type="button"
-          onClick={() => { window.location.href = '/api/auth/google'; }}
+          onClick={() => { window.location.href = getBackendUrl('/api/auth/google'); }}
           className="text-sm text-zinc-200 hover:text-white transition-colors"
         >
           Sign in with Google

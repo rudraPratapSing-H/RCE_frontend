@@ -1,5 +1,6 @@
 // ProblemContext.tsx
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import apiClient from '../lib/apiClient';
 
 // 1. Define the shape of our data
 interface Problem {
@@ -26,8 +27,8 @@ export const ProblemProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     // Fetch data exactly once when the app mounts
-    fetch('/api/problems/titles')
-      .then(res => res.json())
+    apiClient.get('/api/problems/titles')
+      .then(res => res.data)
       .then(data => {
         console.log ("Fetched problems:", data.data);
         setProblems(data.data);
