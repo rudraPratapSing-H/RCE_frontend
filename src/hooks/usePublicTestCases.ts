@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { ExecutionResult } from '../types/testExecution';
+import { ExecutionResult, RerunTestCase } from '../types/testExecution';
 import apiClient from '../lib/apiClient';
 import { isExecutionTerminal, mapStatusToExecutionResult } from './executionResultMapper';
 
@@ -7,7 +7,7 @@ interface UsePublicTestCasesReturn {
   result: ExecutionResult | null;
   isRunning: boolean;
   error: string | null;
-  runPublicTests: (problemId: string, language: string, code: string) => Promise<void>;
+  runPublicTests: (problemId: string, language: string, code: string, selectedTestCases?: RerunTestCase[]) => Promise<void>;
 }
 
 export const usePublicTestCases = (): UsePublicTestCasesReturn => {
@@ -22,7 +22,7 @@ export const usePublicTestCases = (): UsePublicTestCasesReturn => {
 
   const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const runPublicTests = async (problemId: string, language: string, code: string) => {
+  const runPublicTests = async (problemId: string, language: string, code: string, selectedTestCases: RerunTestCase[] = []) => {
     try {
       stopExistingPoll();
       const pollToken = activePollTokenRef.current;
@@ -33,7 +33,8 @@ export const usePublicTestCases = (): UsePublicTestCasesReturn => {
       const response = await apiClient.post('/api/execute-public', {
         problemId,
         language,
-        code
+        code,
+        selectedTestCases
       });
 
       const submissionId = response?.data?.submissionId;

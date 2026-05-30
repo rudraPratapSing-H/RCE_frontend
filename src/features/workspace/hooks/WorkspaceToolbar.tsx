@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Clock, Play, Send } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 
@@ -24,13 +24,50 @@ export const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
   onSubmit,
   isRunning
 }) => {
+  const startLabel = '\u25B6\uFE0F Start';
+  const pauseLabel = '\u23F8\uFE0F Pause';
+  const restartLabel = '\u27F3 Restart';
+  const [secondsElapsed, setSecondsElapsed] = useState(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+
+  useEffect(() => {
+    if (!isTimerRunning) return;
+
+    const intervalId = window.setInterval(() => {
+      setSecondsElapsed((current) => current + 1);
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [isTimerRunning]);
+
+  const formatTime = (totalSeconds: number) => {
+    const minutes = Math.floor(totalSeconds / 60)
+      .toString()
+      .padStart(2, '0');
+    const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+    return `${minutes}:${seconds}`;
+  };
+
+  const handleStartTimer = () => {
+    setIsTimerRunning(true);
+  };
+
+  const handlePauseTimer = () => {
+    setIsTimerRunning(false);
+  };
+
+  const handleRestartTimer = () => {
+    setSecondsElapsed(0);
+    setIsTimerRunning(true);
+  };
+
   return (
-    <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900 px-4 py-3">
-      <div className="flex items-center gap-3">
+    <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900 px-3 py-2">
+      <div className="flex items-center gap-2">
         <select
           value={language}
           onChange={(event) => setLanguage(event.target.value)}
-          className="rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+          className="rounded-md border border-zinc-700 bg-zinc-800 px-2 py-1.5 text-xs text-zinc-100 focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
         >
           {LANGUAGES.map((item) => (
             <option key={item.value} value={item.value}>
@@ -39,19 +76,49 @@ export const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
           ))}
         </select>
 
-        <Button variant="secondary" className="w-auto px-3">
-          <Clock className="h-4 w-4" />
-          <span>Start Timer</span>
-        </Button>
+        <div className="flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1">
+          <Clock className="h-3.5 w-3.5 text-zinc-400" />
+          <span className="min-w-[3.5rem] font-mono text-xs text-zinc-300">{formatTime(secondsElapsed)}</span>
+
+          {!isTimerRunning ? (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleStartTimer}
+              className="w-auto rounded-md px-2 py-1 text-[11px] leading-none"
+            >
+              {startLabel}
+            </Button>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handlePauseTimer}
+                className="w-auto rounded-md px-2 py-1 text-[11px] leading-none"
+              >
+                {pauseLabel}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleRestartTimer}
+                className="w-auto rounded-md px-2 py-1 text-[11px] leading-none"
+              >
+                {restartLabel}
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button variant="primary" onClick={onRun} isLoading={isRunning} className="w-auto px-3">
-          {!isRunning && <Play className="h-4 w-4" />}
+      <div className="flex items-center gap-1.5">
+        <Button variant="primary" onClick={onRun} isLoading={isRunning} className="w-auto rounded-md px-2 py-1 text-[11px] leading-none">
+          {!isRunning && <Play className="h-3 w-3" />}
           <span>Run Code</span>
         </Button>
-        <Button variant="secondary" onClick={onSubmit} isLoading={isRunning} className="w-auto px-3">
-          {!isRunning && <Send className="h-4 w-4" />}
+        <Button variant="secondary" onClick={onSubmit} isLoading={isRunning} className="w-auto rounded-md px-2 py-1 text-[11px] leading-none">
+          {!isRunning && <Send className="h-3 w-3" />}
           <span>Submit</span>
         </Button>
       </div>

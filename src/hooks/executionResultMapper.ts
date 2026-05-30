@@ -48,6 +48,12 @@ const deriveInputFromObject = (value: unknown): unknown => {
   return entries[0][1];
 };
 
+const normalizeCaseInput = (value: unknown): string | object => {
+  if (typeof value === 'string') return value;
+  if (value && typeof value === 'object') return value as object;
+  return '';
+};
+
 export const mapStatusToExecutionResult = (
   payload: BackendStatusResponse,
   submissionId: string,
@@ -56,12 +62,12 @@ export const mapStatusToExecutionResult = (
   const status = String(payload?.status || 'Pending');
   const details = parseDetails(payload?.details);
 
-  const cases: TestCaseResult[] = details.map((item, index) => {
+  const allCases: TestCaseResult[] = details.map((item, index) => {
     const fallbackInput = deriveInputFromObject(item?.testCaseData);
 
     return {
       caseId: String(item?.testCase ?? index + 1),
-      input: item?.input ?? fallbackInput,
+      input: normalizeCaseInput(item?.input ?? fallbackInput),
       expected: String(item?.expectedOutput ?? ''),
       actual: String(item?.output ?? ''),
       passed: Boolean(item?.passed),
@@ -70,8 +76,14 @@ export const mapStatusToExecutionResult = (
     };
   });
 
-  const detailsTotalCases = cases.length;
-  const detailsPassedCases = cases.filter((item) => item.passed).length;
+  const isPrivateFailure = visibility === 'private' && status !== 'Accepted';
+  const firstFailedCase = allCases.find((item) => !item.passed);
+  const cases = isPrivateFailure
+    ? (firstFailedCase ? [firstFailedCase] : allCases.slice(0, 1))
+    : allCases;
+
+  const detailsTotalCases = allCases.length;
+  const detailsPassedCases = allCases.filter((item) => item.passed).length;
 
   const totalCases = Number.isFinite(Number(payload?.totalTestCases))
     ? Number(payload?.totalTestCases)

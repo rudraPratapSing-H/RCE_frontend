@@ -20,7 +20,7 @@ export const Navbar: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-800 bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-gray-900/80">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2 text-zinc-100 transition-colors hover:text-white">
+        <Link to="/workspace" className="flex items-center gap-2 text-zinc-100 transition-colors hover:text-white">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.15)]">
             <Terminal className="h-5 w-5" strokeWidth={1.75} />
           </span>

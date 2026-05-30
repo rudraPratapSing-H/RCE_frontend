@@ -9,6 +9,13 @@ export interface TestCaseResult {
   errorMessage?: string;
 }
 
+export interface RerunTestCase {
+  caseId: string;
+  input: string | object;
+  expectedOutput: string;
+  testCaseData?: unknown;
+}
+
 // Overall execution result
 export interface ExecutionResult {
   submissionId: string;

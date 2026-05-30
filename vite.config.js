@@ -6,6 +6,9 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
+    allowedHosts: [
+      'linoleum-lecturer-oxidizing.ngrok-free.dev'
+    ],
     proxy: {
       '/api': 'http://localhost:8000',
     },
