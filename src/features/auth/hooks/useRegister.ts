@@ -6,12 +6,13 @@ export const useRegister = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const ORG_ID = (import.meta as any).env?.VITE_ORGANIZATION_ID ?? null;
 
   const register = async (username: string, email: string, password: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await apiClient.post('/api/auth/register', { username, email, password });
+      const response = await apiClient.post('/api/auth/register', { username, email, password, organizationId: ORG_ID });
       
       console.log('Registered successfully. Proceeding to OTP verification.', response.data);
       navigate('/verify-email', { state: { email } });

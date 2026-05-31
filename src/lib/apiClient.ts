@@ -2,6 +2,22 @@ import axios from 'axios';
 import { getAccessToken, setAccessToken } from './authToken';
 import { getBackendBaseUrl } from './backendUrl';
 
+export const FRIENDLY_SERVER_ERROR_MESSAGE = 'Mr. Server is on call with Mrs. Server and will be here in few minutes';
+
+const applyFriendlyServerErrorMessage = (error: any) => {
+  const status = error?.response?.status;
+
+  if (status === 404 || status === 500) {
+    if (error?.response?.data && typeof error.response.data === 'object') {
+      error.response.data.message = FRIENDLY_SERVER_ERROR_MESSAGE;
+    }
+
+    error.message = FRIENDLY_SERVER_ERROR_MESSAGE;
+  }
+
+  return error;
+};
+
 const API_BASE_URL = getBackendBaseUrl();
 const hasAbsoluteBackendUrl = /^https?:\/\//i.test(API_BASE_URL);
 
@@ -36,7 +52,7 @@ apiClient.interceptors.response.use(
       setAccessToken(refreshedAccessToken);
     }
 
-    return Promise.reject(error);
+    return Promise.reject(applyFriendlyServerErrorMessage(error));
   }
 );
 

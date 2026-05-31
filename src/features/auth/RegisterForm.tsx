@@ -3,6 +3,8 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { getBackendUrl } from '../../lib/backendUrl';
 
+const ORG_ID = (import.meta as any).env?.VITE_ORGANIZATION_ID ?? 'iet-davv';
+
 interface RegisterFormProps {
   onSubmit: (username: string, email: string, pass: string) => void;
   isLoading: boolean;
@@ -52,7 +54,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, isLoading 
         <button
           type="button"
           aria-label="Sign up with Google"
-          onClick={() => { window.location.href = getBackendUrl('/api/auth/google'); }}
+          onClick={() => { window.location.href = getBackendUrl(`/api/auth/google?organizationId=${encodeURIComponent(ORG_ID)}`); }}
           className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-105 transition-transform"
         >
           <svg width="18" height="18" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -64,7 +66,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, isLoading 
         </button>
         <button
           type="button"
-          onClick={() => { window.location.href = getBackendUrl('/api/auth/google'); }}
+          onClick={() => { window.location.href = getBackendUrl(`/api/auth/google?organizationId=${encodeURIComponent(ORG_ID)}`); }}
           className="text-sm text-zinc-200 hover:text-white transition-colors"
         >
           Sign up with Google

@@ -9,11 +9,13 @@ export const useLogin = () => {
   const navigate = useNavigate();
   const { setAccessToken, setUser } = useAuthContext();
 
+  const ORG_ID = (import.meta as any).env?.VITE_ORGANIZATION_ID ?? null;
+
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await apiClient.post('/api/auth/login', { email, password });
+      const response = await apiClient.post('/api/auth/login', { email, password, organizationId: ORG_ID });
       
       console.log('Logged in successfully', response.data);
       setAccessToken(response.data.accessToken);

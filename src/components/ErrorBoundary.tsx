@@ -1,4 +1,5 @@
 import React from 'react';
+import { FRIENDLY_SERVER_ERROR_MESSAGE } from '../lib/apiClient';
 
 interface State {
   hasError: boolean;
@@ -24,8 +25,7 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
       return (
         <div className="min-h-screen bg-red-900 flex items-center justify-center text-white p-6">
           <div className="max-w-2xl">
-            <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
-            <pre className="whitespace-pre-wrap text-sm bg-black/40 p-4 rounded">{String(this.state.error && this.state.error.stack)}</pre>
+            <h2 className="text-2xl font-bold mb-4">{FRIENDLY_SERVER_ERROR_MESSAGE}</h2>
           </div>
         </div>
       );

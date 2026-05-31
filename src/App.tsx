@@ -8,6 +8,7 @@ import AuthSuccessPage from './pages/AuthSuccessPage';
 import { WorkspacePage } from './pages/WorkspacePage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProblemProvider } from './context/ProblemContext';
+import { FRIENDLY_SERVER_ERROR_MESSAGE } from './lib/apiClient';
 
 const App = () =>
   React.createElement(
@@ -33,7 +34,7 @@ const App = () =>
             React.createElement(Route, { path: '/workspace/:problemId', element: React.createElement(WorkspacePage) }),
             React.createElement(Route, {
               path: '*',
-              element: React.createElement('div', null, '404 - Page Not Found')
+              element: React.createElement('div', null, FRIENDLY_SERVER_ERROR_MESSAGE)
             })
           )
         )
