@@ -7,7 +7,7 @@ interface UsePrivateTestCasesReturn {
   result: ExecutionResult | null;
   isSubmitting: boolean;
   error: string | null;
-  submitCode: (problemId: string, language: string, code: string) => Promise<void>;
+  submitCode: (problemId: string, language: string, code: string, competitionId?: string) => Promise<void>;
   checkSubmissionStatus: (submissionId: string) => Promise<ExecutionResult | null>;
 }
 
@@ -23,7 +23,7 @@ export const usePrivateTestCases = (): UsePrivateTestCasesReturn => {
 
   const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const submitCode = async (problemId: string, language: string, code: string) => {
+  const submitCode = async (problemId: string, language: string, code: string, competitionId?: string) => {
     try {
       stopExistingPoll();
       const pollToken = activePollTokenRef.current;
@@ -34,7 +34,8 @@ export const usePrivateTestCases = (): UsePrivateTestCasesReturn => {
       const response = await apiClient.post('/api/execute', {
         problemId,
         language,
-        code
+        code,
+        competitionId
       });
 
       // Backend returns { submissionId, status: 'Pending' }

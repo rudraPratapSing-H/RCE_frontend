@@ -1,13 +1,22 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, LayoutDashboard, Settings, Terminal, LogOut } from 'lucide-react';
+import { Bell, LayoutDashboard, Settings, Terminal, LogOut, Trophy } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { IconButton } from '../../components/ui/IconButton';
 import { SearchComposer } from './components/SearchComposer';
 import { useAuth } from '../../hooks/useAuth';
 import { useAuthContext } from '../../features/auth/AuthProvider';
+import { CompetitionTimer } from '../competitions/components/CompetitionTimer';
 
-export const Navbar: React.FC = () => {
+interface NavbarProps {
+  competitionTimer?: {
+    startTime: string;
+    endTime: string;
+    onTimerEnd?: () => void;
+  };
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ competitionTimer }) => {
   const navigate = useNavigate();
   const { isAuthenticated, logout } = useAuth();
   const { user } = useAuthContext();
@@ -28,7 +37,15 @@ export const Navbar: React.FC = () => {
         </Link>
 
         <div className="hidden flex-1 md:flex md:justify-center">
-          <SearchComposer />
+          {competitionTimer ? (
+            <CompetitionTimer 
+              startTime={competitionTimer.startTime} 
+              endTime={competitionTimer.endTime} 
+              onTimerEnd={competitionTimer.onTimerEnd}
+            />
+          ) : (
+            <SearchComposer />
+          )}
         </div>
 
         <div className="ml-auto flex items-center gap-2">
@@ -39,6 +56,15 @@ export const Navbar: React.FC = () => {
 
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/workspace/competitions')}
+                className="hidden w-auto items-center gap-2 px-4 text-sm text-zinc-300 hover:text-white sm:inline-flex"
+                aria-label="Open competitions"
+              >
+                <Trophy className="h-4 w-4 text-blue-400" />
+                <span>Competitions</span>
+              </Button>
               <Button
                 variant="ghost"
                 onClick={() => navigate('/dashboard')}

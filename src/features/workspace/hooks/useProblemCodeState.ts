@@ -11,15 +11,15 @@ export const useProblemCodeState = (
   const { problemId } = useParams<{ problemId: string }>();
   const [code, setCode] = useState('');
   const [driverCode, setDriverCode] = useState('');
-  const hasLoadedDraft = useRef(false); // Track if we've already loaded the draft
+  const hasLoadedDraft = useRef<string | null>(null); // Track the last problemId we loaded draft for
 
   // Initial Code Setup
   useEffect(() => {
     if (!problem) return;
 
     // ONLY attempt to load the draft once per problem load
-    if (problemId && !hasLoadedDraft.current) {
-      hasLoadedDraft.current = true;
+    if (problemId && hasLoadedDraft.current !== problemId) {
+      hasLoadedDraft.current = problemId;
       const draftItem = localStorage.getItem(`draft_${problemId}`);
       if (draftItem) {
         try {

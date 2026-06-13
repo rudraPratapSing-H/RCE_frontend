@@ -6,14 +6,16 @@ type Params = {
   problemId: string;
   language: string;
   code: string;
+  competitionId?: string;
   setLastAction: Dispatch<SetStateAction<WorkspaceAction>>;
-  submitCode: (problemId: string, language: string, code: string) => Promise<void>;
+  submitCode: (problemId: string, language: string, code: string, competitionId?: string) => Promise<void>;
 };
 
 export const useHandlePrivateTestCases = ({
   problemId,
   language,
   code,
+  competitionId,
   setLastAction,
   submitCode
 }: Params) => {
@@ -23,6 +25,6 @@ export const useHandlePrivateTestCases = ({
     }
 
     setLastAction('private');
-    await submitCode(problemId, language, code);
-  }, [code, language, problemId, setLastAction, submitCode]);
+    await submitCode(problemId, language, code, competitionId);
+  }, [code, language, problemId, competitionId, setLastAction, submitCode]);
 };

@@ -83,12 +83,33 @@ export function ConsolePanel({
     const cleanError = cleanDockerOutput(error);
     return (
       <div className="h-full w-full min-h-0 overflow-y-auto border-zinc-800 bg-black p-4">
-        <div className="flex items-start gap-3 rounded bg-red-900/30 p-3 text-red-400">
-          <AlertCircle className="mt-0.5 flex-shrink-0" size={18} />
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold">Execution Error</p>
-            <pre className="mt-2 w-full whitespace-pre-wrap break-words font-mono text-xs text-red-300">
-              {cleanError}
+        <div className="flex flex-col gap-3 rounded-lg border border-red-500/20 bg-red-950/20 p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-red-400">
+              <AlertCircle size={18} />
+              <h3 className="font-semibold tracking-wide">Execution Error</h3>
+            </div>
+            <button
+              onClick={(e) => handleCopy(e, 'global-error', cleanError)}
+              className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-medium text-red-300 transition-colors hover:bg-red-500/20"
+            >
+              {copyButtonLabel('global-error')}
+            </button>
+          </div>
+          
+          <div className="relative mt-2 overflow-hidden rounded-md border border-red-500/20 bg-[#0d0d0d]">
+            <div className="flex items-center border-b border-red-500/20 bg-red-900/10 px-4 py-2">
+              <div className="flex gap-1.5">
+                <div className="h-2.5 w-2.5 rounded-full bg-red-500/40"></div>
+                <div className="h-2.5 w-2.5 rounded-full bg-red-500/20"></div>
+                <div className="h-2.5 w-2.5 rounded-full bg-red-500/10"></div>
+              </div>
+              <span className="ml-3 font-mono text-[10px] uppercase tracking-wider text-red-400/70">Console Output</span>
+            </div>
+            <pre className="max-h-[60vh] w-full overflow-auto p-4 font-mono text-[13px] leading-relaxed text-red-300 selection:bg-red-500/30">
+              <code className="block whitespace-pre-wrap break-words">
+                {cleanError}
+              </code>
             </pre>
           </div>
         </div>
@@ -236,22 +257,30 @@ export function ConsolePanel({
                 </div>
 
                 {testCase.errorMessage && (
-                  <div>
-                    <div className="mb-1 flex items-center justify-between">
-                      <p className="font-semibold text-red-400">Runtime Output:</p>
+                  <div className="mt-4">
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-red-400">
+                        <AlertCircle size={14} />
+                        <span className="font-semibold tracking-wide">Runtime Output / Error</span>
+                      </div>
                       <button
                         type="button"
                         onClick={(event) =>
                           handleCopy(event, `${testCase.caseId}-runtime`, cleanDockerOutput(testCase.errorMessage))
                         }
-                        className="rounded border border-zinc-700 px-2 py-0.5 text-[11px] text-zinc-300 hover:bg-zinc-800"
+                        className="rounded-md border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[11px] font-medium text-red-300 transition hover:bg-red-500/20"
                       >
                         {copyButtonLabel(`${testCase.caseId}-runtime`)}
                       </button>
                     </div>
-                    <pre className="max-h-none overflow-x-auto rounded bg-red-900/20 p-2 font-mono text-xs whitespace-pre-wrap break-words text-red-300">
-                      {cleanDockerOutput(testCase.errorMessage)}
-                    </pre>
+                    
+                    <div className="overflow-hidden rounded-md border border-red-500/20 bg-[#0d0d0d]">
+                      <pre className="max-h-60 overflow-y-auto p-3 font-mono text-xs leading-relaxed text-red-300 selection:bg-red-500/30">
+                        <code className="block whitespace-pre-wrap break-words">
+                          {cleanDockerOutput(testCase.errorMessage)}
+                        </code>
+                      </pre>
+                    </div>
                   </div>
                 )}
               </div>

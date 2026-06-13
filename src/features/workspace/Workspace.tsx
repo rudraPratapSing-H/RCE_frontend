@@ -20,7 +20,12 @@ import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'reac
 
 type LeftPanelTab = 'problem' | 'submission' | 'terminal';
 
-export const Workspace: React.FC = () => {
+interface WorkspaceProps {
+  isCompetitionMode?: boolean;
+  competitionId?: string;
+}
+
+export const Workspace: React.FC<WorkspaceProps> = ({ isCompetitionMode, competitionId }) => {
 
   const { problemId = '' } = useParams<{ problemId: string }>();
   const { problem, isLoading } = useProblem(problemId);
@@ -68,6 +73,7 @@ export const Workspace: React.FC = () => {
     problemId,
     language,
     code,
+    competitionId,
     setLastAction,
     submitCode
   });
@@ -141,25 +147,27 @@ export const Workspace: React.FC = () => {
         isRunning={isRunning}
       />
 
-      <PanelGroup direction="horizontal" className="flex-1 overflow-hidden" autosaveid="workspace-horizontal">
+      <PanelGroup direction="horizontal" className="flex-1 overflow-hidden" autosaveId={isCompetitionMode ? "competition-workspace-v2" : "workspace-horizontal-v2"}>
         {/* Left side container: description, submissions, or terminal */}
-        <Panel defaultSize={30} minSize={20} className="flex">
+        <Panel defaultSize={25} minSize={20} className="flex">
           <div className="flex h-full w-full flex-col overflow-hidden border-r border-zinc-800">
             <div className="flex gap-1.5 border-b border-zinc-800 bg-zinc-900 px-3 py-2">
               <button
-                className={`rounded px-2.5 py-1 text-xs font-medium ${panel === 'problem' ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-300'}`}
+                className={`rounded px-2.5 py-1 text-xs font-medium ${panel === 'problem' ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'}`}
                 onClick={() => setPanel('problem')}
               >
                 Description
               </button>
+              {!isCompetitionMode && (
+                <button
+                  className={`rounded px-2.5 py-1 text-xs font-medium ${panel === 'submission' ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'}`}
+                  onClick={() => setPanel('submission')}
+                >
+                  Submission
+                </button>
+              )}
               <button
-                className={`rounded px-2.5 py-1 text-xs font-medium ${panel === 'submission' ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-300'}`}
-                onClick={() => setPanel('submission')}
-              >
-                Submission
-              </button>
-              <button
-                className={`rounded px-2.5 py-1 text-xs font-medium ${panel === 'terminal' ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-300'}`}
+                className={`rounded px-2.5 py-1 text-xs font-medium ${panel === 'terminal' ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'}`}
                 onClick={() => setPanel('terminal')}
               >
                 Terminal
@@ -188,7 +196,7 @@ export const Workspace: React.FC = () => {
         <PanelResizeHandle className="w-1.5 bg-zinc-950 hover:bg-blue-500/50 active:bg-blue-500 transition-colors cursor-[col-resize]" />
 
         {/* Right side container: editor only */}
-        <Panel defaultSize={70} minSize={30} className="flex flex-col border-l border-zinc-800">
+        <Panel defaultSize={75} minSize={30} className="flex flex-col border-l border-zinc-800">
           <EditorPanel language={language} code={code} setCode={setCode} />
         </Panel>
       </PanelGroup>
