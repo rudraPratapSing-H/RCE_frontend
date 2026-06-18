@@ -6,6 +6,8 @@ export interface CompetitionLogItem {
   status: string;
   score: number;
   maxScore: number;
+  timeTaken?: number;
+  lastStartedAt?: string | null;
 }
 
 export const getCompetitionLogs = async (competitionId: string): Promise<CompetitionLogItem[]> => {

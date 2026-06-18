@@ -10,6 +10,7 @@ type WorkspaceToolbarProps = {
   isRunning: boolean;
   competitionId?: string;
   onOpenDashboard?: () => void;
+  timerSeconds?: number;
 };
 
 const LANGUAGES = [
@@ -26,29 +27,14 @@ export const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
   onSubmit,
   isRunning,
   competitionId,
-  onOpenDashboard
+  onOpenDashboard,
+  timerSeconds
 }) => {
-  const startLabel = '\u25B6\uFE0F Start';
-  const pauseLabel = '\u23F8\uFE0F Pause';
-  const restartLabel = '\u27F3 Restart';
-  const [secondsElapsed, setSecondsElapsed] = useState(0);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-  
   const navigate = () => {
     if (competitionId && onOpenDashboard) {
       onOpenDashboard();
     }
   };
-
-  useEffect(() => {
-    if (!isTimerRunning) return;
-
-    const intervalId = window.setInterval(() => {
-      setSecondsElapsed((current) => current + 1);
-    }, 1000);
-
-    return () => window.clearInterval(intervalId);
-  }, [isTimerRunning]);
 
   const formatTime = (totalSeconds: number) => {
     const minutes = Math.floor(totalSeconds / 60)
@@ -56,19 +42,6 @@ export const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
       .padStart(2, '0');
     const seconds = (totalSeconds % 60).toString().padStart(2, '0');
     return `${minutes}:${seconds}`;
-  };
-
-  const handleStartTimer = () => {
-    setIsTimerRunning(true);
-  };
-
-  const handlePauseTimer = () => {
-    setIsTimerRunning(false);
-  };
-
-  const handleRestartTimer = () => {
-    setSecondsElapsed(0);
-    setIsTimerRunning(true);
   };
 
   return (
@@ -86,40 +59,12 @@ export const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
           ))}
         </select>
 
-        <div className="flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1">
-          <Clock className="h-3.5 w-3.5 text-zinc-400" />
-          <span className="min-w-[3.5rem] font-mono text-xs text-zinc-300">{formatTime(secondsElapsed)}</span>
-
-          {!isTimerRunning ? (
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleStartTimer}
-              className="w-auto rounded-md px-2 py-1 text-[11px] leading-none"
-            >
-              {startLabel}
-            </Button>
-          ) : (
-            <>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={handlePauseTimer}
-                className="w-auto rounded-md px-2 py-1 text-[11px] leading-none"
-              >
-                {pauseLabel}
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={handleRestartTimer}
-                className="w-auto rounded-md px-2 py-1 text-[11px] leading-none"
-              >
-                {restartLabel}
-              </Button>
-            </>
-          )}
-        </div>
+        {timerSeconds !== undefined && (
+          <div className="flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1">
+            <Clock className="h-3.5 w-3.5 text-zinc-400" />
+            <span className="min-w-[3.5rem] font-mono text-xs text-zinc-300">{formatTime(timerSeconds)}</span>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-1.5">

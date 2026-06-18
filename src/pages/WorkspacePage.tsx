@@ -72,7 +72,7 @@ export const WorkspacePage: React.FC = () => {
     </div>
   );
 
-  if (competitionId && fullScreenMandatory) {
+  if (competitionId) {
     return (
       <FullScreenEnforcer competitionId={competitionId} isMandatory={fullScreenMandatory}>
         {content}

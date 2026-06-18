@@ -14,6 +14,8 @@ import { useLatestSubmissionCode } from './hooks/useLatestSubmissionCode';
 import { useProblemCodeState } from './hooks/useProblemCodeState';
 import { useWorkspaceExecutionState } from './hooks/useWorkspaceExecutionState';
 import { CompetitionDashboard } from '../competitions/components/CompetitionDashboard';
+import { startProblemTimer, pauseProblemTimer } from '../competitions/api/timeTracking';
+import { getCompetitionLogs } from '../competitions/api/getCompetitionLogs';
 import { X } from 'lucide-react';
 
 import type { WorkspaceAction } from './types';
@@ -34,6 +36,8 @@ export const Workspace: React.FC<WorkspaceProps> = ({ competitionId }) => {
   const { problem, isLoading } = useProblem(problemId);
 
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+  const [timerSeconds, setTimerSeconds] = useState<number | undefined>(undefined);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
 
   const [language, setLanguage] = useState('javascript');
   const [lastAction, setLastAction] = useState<WorkspaceAction>('none');
@@ -107,6 +111,80 @@ export const Workspace: React.FC<WorkspaceProps> = ({ competitionId }) => {
   void driverCode;
   void setDriverCode;
 
+  // Fetch initial timer
+  useEffect(() => {
+    if (!competitionId || !problemId) return;
+    
+    let isMounted = true;
+    getCompetitionLogs(competitionId).then(logs => {
+      if (!isMounted) return;
+      const log = logs.find(l => l.problemId === problemId);
+      if (log) {
+        let elapsed = log.timeTaken || 0;
+        if (log.lastStartedAt) {
+          const past = new Date(log.lastStartedAt).getTime();
+          elapsed += Math.floor((Date.now() - past) / 1000);
+        }
+        setTimerSeconds(elapsed);
+      } else {
+        setTimerSeconds(0);
+      }
+    }).catch(console.error);
+
+    return () => { isMounted = false; };
+  }, [competitionId, problemId]);
+
+  // Start/Pause logic
+  useEffect(() => {
+    if (!competitionId || !problemId) return;
+
+    let isActive = false;
+
+    const start = () => {
+      if (!isActive) {
+        startProblemTimer(competitionId, problemId);
+        setIsTimerRunning(true);
+        isActive = true;
+      }
+    };
+
+    const pause = () => {
+      if (isActive) {
+        pauseProblemTimer(competitionId, problemId);
+        setIsTimerRunning(false);
+        isActive = false;
+      }
+    };
+
+    if (!isDashboardOpen) {
+      start();
+    } else {
+      pause();
+    }
+
+    const handleBeforeUnload = () => {
+      if (isActive) {
+        navigator.sendBeacon(`/api/competitions/${competitionId}/problems/${problemId}/time/pause`);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      pause();
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [competitionId, problemId, isDashboardOpen]);
+
+  // Ticking visual timer
+  useEffect(() => {
+    if (!isTimerRunning || timerSeconds === undefined) return;
+    const interval = setInterval(() => {
+      setTimerSeconds(s => (s !== undefined ? s + 1 : s));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isTimerRunning, timerSeconds]);
+
   useEffect(() => {
     const status = currentResult?.status?.toLowerCase();
     if (status === 'accepted' || status === 'success') {
@@ -152,6 +230,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({ competitionId }) => {
         isRunning={isRunning}
         competitionId={competitionId}
         onOpenDashboard={() => setIsDashboardOpen(true)}
+        timerSeconds={timerSeconds}
       />
 
       {isDashboardOpen && competitionId && (
