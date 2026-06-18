@@ -17,7 +17,7 @@ export const ProblemPanel: React.FC<ProblemPanelProps> = ({ problem }) => {
 
   return (
     <aside className="flex h-full w-full flex-col overflow-y-auto bg-zinc-950 p-4 md:p-6">
-      <h1 className="mb-4 text-xl md:text-2xl font-bold text-zinc-100 wrap-break-word">
+      <h1 className="mb-4 text-xl md:text-2xl font-bold text-zinc-100 break-words">
         {problem?.title || 'Problem'}
       </h1>
 
@@ -26,7 +26,7 @@ export const ProblemPanel: React.FC<ProblemPanelProps> = ({ problem }) => {
       </div>
 
       <div
-        className="text-sm leading-7 text-zinc-300 prose prose-invert max-w-none wrap-break-word"
+        className="text-sm leading-7 text-zinc-300 prose prose-invert max-w-none break-words"
         dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
       />
     </aside>

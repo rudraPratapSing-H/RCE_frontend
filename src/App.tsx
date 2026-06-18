@@ -9,7 +9,7 @@ import { WorkspacePage } from './pages/WorkspacePage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProblemProvider } from './context/ProblemContext';
 import { CompetitionsPage } from './features/competitions/pages/CompetitionsPage';
-import { CompetitionWorkspacePage } from './features/competitions/pages/CompetitionWorkspacePage';
+import { CompetitionQuestionsPage } from './features/competitions/pages/CompetitionQuestionsPage';
 import { FRIENDLY_SERVER_ERROR_MESSAGE } from './lib/apiClient';
 
 const App = () =>
@@ -34,9 +34,7 @@ const App = () =>
             React.createElement(Route, { path: '/dashboard', element: React.createElement(DashboardPage) }),
             React.createElement(Route, { path: '/workspace', element: React.createElement(WorkspacePage) }),
             React.createElement(Route, { path: '/workspace/competitions', element: React.createElement(CompetitionsPage) }),
-            React.createElement(Route, { path: '/workspace/competitions/:competitionId', element: React.createElement(CompetitionWorkspacePage) }),
-            React.createElement(Route, { path: '/workspace/competitions/:competitionId/problems/:problemId', element: React.createElement(CompetitionWorkspacePage) }),
-            React.createElement(Route, { path: '/workspace/competitions/:competitionId/leaderboard', element: React.createElement(CompetitionWorkspacePage) }),
+            React.createElement(Route, { path: '/workspace/competitions/:competitionId', element: React.createElement(CompetitionQuestionsPage) }),
             React.createElement(Route, { path: '/workspace/:problemId', element: React.createElement(WorkspacePage) }),
             React.createElement(Route, {
               path: '*',

@@ -15,13 +15,13 @@ type LatestSubmissionResponse = {
   submission: LatestSubmission | null;
 };
 
-export const useLatestSubmissionCode = (problemId: string, language: string) => {
+export const useLatestSubmissionCode = (problemId: string, language: string, skipFetch: boolean = false) => {
   const [latestSubmission, setLatestSubmission] = useState<LatestSubmission | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!problemId || !language) {
+    if (!problemId || !language || skipFetch) {
       setLatestSubmission(null);
       setError(null);
       setIsLoading(false);
@@ -60,7 +60,7 @@ export const useLatestSubmissionCode = (problemId: string, language: string) => 
     return () => {
       cancelled = true;
     };
-  }, [problemId, language]);
+  }, [problemId, language, skipFetch]);
 
   return {
     latestSubmission,

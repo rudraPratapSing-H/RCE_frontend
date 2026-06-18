@@ -8,6 +8,8 @@ type WorkspaceToolbarProps = {
   onRun: () => void;
   onSubmit: () => void;
   isRunning: boolean;
+  competitionId?: string;
+  onOpenDashboard?: () => void;
 };
 
 const LANGUAGES = [
@@ -22,13 +24,21 @@ export const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
   setLanguage,
   onRun,
   onSubmit,
-  isRunning
+  isRunning,
+  competitionId,
+  onOpenDashboard
 }) => {
   const startLabel = '\u25B6\uFE0F Start';
   const pauseLabel = '\u23F8\uFE0F Pause';
   const restartLabel = '\u27F3 Restart';
   const [secondsElapsed, setSecondsElapsed] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  
+  const navigate = () => {
+    if (competitionId && onOpenDashboard) {
+      onOpenDashboard();
+    }
+  };
 
   useEffect(() => {
     if (!isTimerRunning) return;
@@ -113,6 +123,11 @@ export const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
       </div>
 
       <div className="flex items-center gap-1.5">
+        {competitionId && (
+          <Button variant="secondary" onClick={navigate} className="w-auto rounded-md px-2 py-1 text-[11px] leading-none bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-500/30">
+            <span>Questions & Leaderboard</span>
+          </Button>
+        )}
         <Button variant="primary" onClick={onRun} isLoading={isRunning} className="w-auto rounded-md px-2 py-1 text-[11px] leading-none">
           {!isRunning && <Play className="h-3 w-3" />}
           <span>Run Code</span>

@@ -10,6 +10,7 @@ export interface CompetitionDetails {
   description?: string;
   startTime: string;
   endTime: string;
+  fullScreenMandatory: boolean;
   problems: CompetitionProblemBasic[];
 }
 

@@ -8,8 +8,8 @@ interface CompetitionCardProps {
 }
 
 export const CompetitionCard: React.FC<CompetitionCardProps> = ({ competition, onClick }) => {
-  const startDate = new Date(competition.startTime);
-  const endDate = new Date(competition.endTime);
+  const startDate = new Date(competition.startTime.replace('Z', ''));
+  const endDate = new Date(competition.endTime.replace('Z', ''));
 
   const formatDateTime = (date: Date) => {
     return date.toLocaleString('en-US', {
