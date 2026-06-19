@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Navbar } from '../../navbar/Navbar';
 import { useAuth } from '../../../hooks/useAuth';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import { FullScreenEnforcer } from '../components/FullScreenEnforcer';
 import { registerForCompetition } from '../api/registerForCompetition';
+import { finishCompetition } from '../api/finishCompetition';
 import { CompetitionDashboard } from '../components/CompetitionDashboard';
+import { FinishCompetitionButton } from '../components/FinishCompetitionButton';
 
 export const CompetitionQuestionsPage: React.FC = () => {
   const { competitionId } = useParams<{ competitionId: string }>();
@@ -18,6 +20,7 @@ export const CompetitionQuestionsPage: React.FC = () => {
   const [fullScreenMandatory, setFullScreenMandatory] = useState(false);
   const [competitionTimes, setCompetitionTimes] = useState<{ startTime: string, endTime: string } | null>(null);
   const [hasEnded, setHasEnded] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated && !loading) {
@@ -34,8 +37,9 @@ export const CompetitionQuestionsPage: React.FC = () => {
         const regResponse = await registerForCompetition(competitionId);
         setFullScreenMandatory(regResponse.fullScreenMandatory);
         setCompetitionTimes({ startTime: regResponse.startTime, endTime: regResponse.endTime });
+        setIsFinished(regResponse.finished || false);
 
-        if (new Date() > new Date(regResponse.endTime.replace('Z', ''))) {
+        if (new Date() > new Date(regResponse.endTime)) {
           setHasEnded(true);
         }
 
@@ -64,6 +68,18 @@ export const CompetitionQuestionsPage: React.FC = () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
+
+  const handleTimerEnd = async () => {
+    setHasEnded(true);
+    if (competitionId && !isFinished) {
+      try {
+        await finishCompetition(competitionId);
+        setIsFinished(true);
+      } catch (err) {
+        console.error('Auto-finish failed:', err);
+      }
+    }
+  };
 
   const handleQuestionClick = (problemId: string) => {
     navigate(`/workspace/${problemId}?competitionId=${competitionId}`, { 
@@ -111,21 +127,40 @@ export const CompetitionQuestionsPage: React.FC = () => {
             competitionTimer={competitionTimes ? {
               startTime: competitionTimes.startTime,
               endTime: competitionTimes.endTime,
-              onTimerEnd: () => setHasEnded(true)
+              onTimerEnd: handleTimerEnd
             } : undefined}
           />
         </div>
         
         <main className="flex-1 overflow-auto p-6 lg:p-8 relative">
-          {hasEnded && (
+          {(hasEnded || isFinished) && (
             <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-zinc-950/80 backdrop-blur-sm">
               <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-8 text-center shadow-2xl">
-                <h2 className="text-2xl font-bold text-white mb-2">Competition Ended</h2>
-                <p className="text-zinc-400">The time for this competition has expired.</p>
+                <CheckCircle className="mx-auto mb-4 h-12 w-12 text-green-500" />
+                <h2 className="text-2xl font-bold text-white mb-2">
+                  {hasEnded ? "Competition Ended" : "Competition Finished"}
+                </h2>
+                <p className="text-zinc-400">
+                  {hasEnded ? "The time for this competition has expired." : "You have successfully finished the competition."}
+                </p>
+                <button
+                  onClick={() => navigate('/workspace')}
+                  className="mt-6 rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700"
+                >
+                  Return to Workspace
+                </button>
               </div>
             </div>
           )}
           
+          <div className="mb-6 flex items-center justify-end">
+            <FinishCompetitionButton 
+              competitionId={competitionId!} 
+              disabled={isFinished || hasEnded}
+              onFinishSuccess={() => setIsFinished(true)}
+            />
+          </div>
+
           <CompetitionDashboard 
             competitionId={competitionId!} 
             onQuestionClick={handleQuestionClick} 

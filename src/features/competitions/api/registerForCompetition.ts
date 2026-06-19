@@ -7,6 +7,7 @@ export interface RegisterCompetitionResponse {
   fullScreenMandatory: boolean;
   startTime: string;
   endTime: string;
+  finished: boolean;
 }
 
 export const registerForCompetition = async (competitionId: string): Promise<RegisterCompetitionResponse> => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Clock, Play, Send } from 'lucide-react';
+import { Clock, Timer, Play, Send } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 
 type WorkspaceToolbarProps = {
@@ -36,16 +36,26 @@ export const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
     }
   };
 
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const formatTime = (totalSeconds: number) => {
-    const minutes = Math.floor(totalSeconds / 60)
-      .toString()
-      .padStart(2, '0');
+    const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+    const minutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
     const seconds = (totalSeconds % 60).toString().padStart(2, '0');
-    return `${minutes}:${seconds}`;
+    return `${hours}:${minutes}:${seconds}`;
+  };
+
+  const formatClock = (date: Date) => {
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
   };
 
   return (
-    <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900 px-3 py-2">
+    <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900 px-3 py-2 relative">
       <div className="flex items-center gap-2">
         <select
           value={language}
@@ -58,14 +68,21 @@ export const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
             </option>
           ))}
         </select>
-
-        {timerSeconds !== undefined && (
-          <div className="flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1">
-            <Clock className="h-3.5 w-3.5 text-zinc-400" />
-            <span className="min-w-[3.5rem] font-mono text-xs text-zinc-300">{formatTime(timerSeconds)}</span>
-          </div>
-        )}
       </div>
+
+      {timerSeconds !== undefined && (
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-3 rounded-md border border-zinc-700 bg-zinc-950/50 px-3 py-1.5 shadow-sm">
+          <div className="flex items-center gap-1.5">
+            <Timer className="h-3.5 w-3.5 text-blue-400" />
+            <span className="font-mono text-xs font-medium text-blue-300">{formatTime(timerSeconds)}</span>
+          </div>
+          <div className="h-3 w-px bg-zinc-700" />
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5 text-zinc-400" />
+            <span className="font-mono text-xs font-medium text-zinc-400">{formatClock(currentTime)}</span>
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center gap-1.5">
         {competitionId && (

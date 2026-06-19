@@ -12,7 +12,7 @@ export const CompetitionTimer: React.FC<CompetitionTimerProps> = ({ startTime, e
   const [hasEnded, setHasEnded] = useState(false);
 
   useEffect(() => {
-    const end = new Date(endTime.replace('Z', '')).getTime();
+    const end = new Date(endTime).getTime();
 
     const interval = setInterval(() => {
       const now = new Date().getTime();

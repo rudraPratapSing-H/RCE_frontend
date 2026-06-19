@@ -16,6 +16,7 @@ import { useWorkspaceExecutionState } from './hooks/useWorkspaceExecutionState';
 import { CompetitionDashboard } from '../competitions/components/CompetitionDashboard';
 import { startProblemTimer, pauseProblemTimer } from '../competitions/api/timeTracking';
 import { getCompetitionLogs } from '../competitions/api/getCompetitionLogs';
+import { FinishCompetitionButton } from '../competitions/components/FinishCompetitionButton';
 import { X } from 'lucide-react';
 
 import type { WorkspaceAction } from './types';
@@ -235,7 +236,10 @@ export const Workspace: React.FC<WorkspaceProps> = ({ competitionId }) => {
 
       {isDashboardOpen && competitionId && (
         <div className="absolute inset-0 z-50 flex flex-col bg-zinc-950/95 backdrop-blur-md">
-          <div className="flex justify-end p-4">
+          <div className="flex justify-between items-center p-4 border-b border-zinc-800">
+            <FinishCompetitionButton 
+              competitionId={competitionId} 
+            />
             <button 
               onClick={() => setIsDashboardOpen(false)}
               className="rounded-full bg-zinc-800 p-2 text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors"
@@ -243,7 +247,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({ competitionId }) => {
               <X className="h-5 w-5" />
             </button>
           </div>
-          <div className="flex-1 overflow-auto px-6 pb-6">
+          <div className="flex-1 overflow-auto px-6 pb-6 pt-4">
             <CompetitionDashboard 
               competitionId={competitionId} 
               onQuestionClick={(newProblemId) => {
